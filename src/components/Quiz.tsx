@@ -19,7 +19,6 @@ const Quiz: React.FC = () => {
 
   const handlePrevClick = (): void => {
     if (!quizCore.hasPrevQuestion()) return;
-    // Save current selection before moving back
     if (selectedAnswer !== null) {
       quizCore.answerQuestion(selectedAnswer);
     }
@@ -31,7 +30,6 @@ const Quiz: React.FC = () => {
   const handleNextClick = (): void => {
     if (selectedAnswer === null || !currentQuestion) return;
 
-    // Record answer and move forward or finish
     quizCore.answerQuestion(selectedAnswer);
     if (quizCore.hasNextQuestion()) {
       quizCore.nextQuestion();
@@ -50,19 +48,18 @@ const Quiz: React.FC = () => {
 
     return (
       <div className="quiz-container">
-        <h1>My React Quiz</h1>
         <h2>Quiz Completed</h2>
         <p>Final Score: {score} out of {total}</p>
 
         <h3>Review Your Answers:</h3>
         <ul className="summary-list">
           {questions.map((q, idx) => {
-            const userAns = answers[idx];
-            const correct = q.correctAnswer === userAns;
+            const userAnswer = answers[idx];
+            const correct = q.correctAnswer === userAnswer;
             return (
               <li key={idx} className={correct ? 'correct' : 'incorrect'}>
                 <p><strong>Q{idx + 1}:</strong> {q.question}</p>
-                <p>Your answer: {userAns ?? <em>None</em>}</p>
+                <p>Your answer: {userAnswer ?? <em>None</em>}</p>
                 <p>Correct answer: {q.correctAnswer}</p>
               </li>
             );
@@ -76,7 +73,6 @@ const Quiz: React.FC = () => {
 
   return (
     <div className="quiz-container">
-      <h1>My React Quiz</h1>
       <h2>Quiz Question:</h2>
       <p className="question-text">{currentQuestion.question}</p>
 
