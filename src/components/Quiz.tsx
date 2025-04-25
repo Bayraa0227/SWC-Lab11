@@ -1,62 +1,61 @@
-import React, { useState } from 'react'
-import './Quiz.css'
+import React, { useState } from 'react';
+import QuizCore from '../core/QuizCore';
 import QuizQuestion from '../core/QuizQuestion';
-
-interface QuizState {
-  questions: QuizQuestion[]
-  currentQuestionIndex: number
-  selectedAnswer: string | null
-  score: number
-}
+import './Quiz.css';
 
 const Quiz: React.FC = () => {
-  const initialQuestions: QuizQuestion[] = [
-    {
-      question: 'What is the capital of France?',
-      options: ['London', 'Berlin', 'Paris', 'Madrid'],
-      correctAnswer: 'Paris',
-    },
-  ];
-  const [state, setState] = useState<QuizState>({
-    questions: initialQuestions,
-    currentQuestionIndex: 0,  // Initialize the current question index.
-    selectedAnswer: null,  // Initialize the selected answer.
-    score: 0,  // Initialize the score.
-  });
+  const [quizCore] = useState<QuizCore>(() => new QuizCore());
+  const [currentQuestion, setCurrentQuestion] = useState<QuizQuestion | null>(
+    () => quizCore.getCurrentQuestion()
+  );
+  const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
+  const [isQuizCompleted, setIsQuizCompleted] = useState<boolean>(false);
 
   const handleOptionSelect = (option: string): void => {
-    setState((prevState) => ({ ...prevState, selectedAnswer: option }));
-  }
-
+    setSelectedAnswer(option);
+  };
 
   const handleButtonClick = (): void => {
-    // Task3: Implement the logic for button click, such as moving to the next question.
-  } 
+    if (selectedAnswer === null || !currentQuestion) return;
 
-  const { questions, currentQuestionIndex, selectedAnswer, score } = state;
-  const currentQuestion = questions[currentQuestionIndex];
+    quizCore.answerQuestion(selectedAnswer);
 
-  if (!currentQuestion) {
+    if (quizCore.hasNextQuestion()) {
+      quizCore.nextQuestion();
+      setCurrentQuestion(quizCore.getCurrentQuestion());
+      setSelectedAnswer(null);
+    } else {
+      setIsQuizCompleted(true);
+    }
+  };
+
+  if (isQuizCompleted || !currentQuestion) {
+    const score = quizCore.getScore();
+    const total = quizCore.getTotalQuestions();
     return (
-      <div>
+      <div className="quiz-container">
+        {/* <h1>My React Quiz</h1> */}
         <h2>Quiz Completed</h2>
-        <p>Final Score: {score} out of {questions.length}</p>
+        <p>Final Score: {score} out of {total}</p>
       </div>
     );
   }
 
+  const buttonLabel = quizCore.hasNextQuestion() ? 'Next Question' : 'Submit';
+
   return (
-    <div>
+    <div className="quiz-container">
+      {/* <h1>My React Quiz</h1> */}
       <h2>Quiz Question:</h2>
-      <p>{currentQuestion.question}</p>
-    
+      <p className="question-text">{currentQuestion.question}</p>
+
       <h3>Answer Options:</h3>
-      <ul>
+      <ul className="options-list">
         {currentQuestion.options.map((option) => (
           <li
             key={option}
+            className={`option ${selectedAnswer === option ? 'selected' : ''}`}
             onClick={() => handleOptionSelect(option)}
-            className={selectedAnswer === option ? 'selected' : ''}
           >
             {option}
           </li>
@@ -66,7 +65,9 @@ const Quiz: React.FC = () => {
       <h3>Selected Answer:</h3>
       <p>{selectedAnswer ?? 'No answer selected'}</p>
 
-      <button onClick={handleButtonClick}>Next Question</button>
+      <button onClick={handleButtonClick} disabled={!selectedAnswer}>
+        {buttonLabel}
+      </button>
     </div>
   );
 };
