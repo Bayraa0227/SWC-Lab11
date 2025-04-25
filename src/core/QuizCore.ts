@@ -3,83 +3,106 @@ import QuizQuestion from './QuizQuestion';
 
 /**
  * The `QuizCore` class represents the core logic for managing a quiz, including
- * maintaining the quiz questions, tracking the user's progress, and calculating
+ * maintaining the quiz questions, tracking the user's answers, and calculating
  * their score.
- * 
- * It provides methods for navigating through the quiz, answering questions,
- * and retrieving information about the current state of the quiz.
  */
 class QuizCore {
   private questions: QuizQuestion[];
   private currentQuestionIndex: number;
-  private score: number;
+  private userAnswers: (string | null)[];
 
-  /**
-   * Constructor
-   * @param filePath - The file path to a JSON file containing quiz data.
-   * @param callback - A callback function called when the quiz data is loaded.
-   */
   constructor() {
     this.questions = quizData;
     this.currentQuestionIndex = 0;
-    this.score = 0;
+    // Initialize answers array to match questions length
+    this.userAnswers = Array(this.questions.length).fill(null);
   }
 
   /**
-   * Get the current question.
-   * @returns The current question or null if no questions are available.
+   * Returns the current quiz question, or null if index is out of range.
    */
   public getCurrentQuestion(): QuizQuestion | null {
-    // Returns the current quiz question.
-    if (this.currentQuestionIndex >= 0 && this.currentQuestionIndex < this.questions.length) {
-      return this.questions[this.currentQuestionIndex];
-    }
-    return null;
+    return (
+      this.questions[this.currentQuestionIndex] || null
+    );
   }
 
   /**
-   * Move to the next question.
+   * Records an answer for the current question (correct or not).
    */
-  public nextQuestion(): void {      
-    this.currentQuestionIndex++;
+  public answerQuestion(answer: string): void {
+    this.userAnswers[this.currentQuestionIndex] = answer;
   }
 
   /**
-   * Checks if there is a next question available in the quiz.
-   *
-   * @returns {boolean} True if there is a next question, false if the quiz has been completed.
+   * Retrieves the user's previously recorded answer for the current question.
+   */
+  public getCurrentAnswer(): string | null {
+    return this.userAnswers[this.currentQuestionIndex];
+  }
+
+  /**
+   * Advances to the next question if available.
+   */
+  public nextQuestion(): void {
+    if (this.hasNextQuestion()) {
+      this.currentQuestionIndex++;
+    }
+  }
+
+  /**
+   * Moves to the previous question if available.
+   */
+  public prevQuestion(): void {
+    if (this.hasPrevQuestion()) {
+      this.currentQuestionIndex--;
+    }
+  }
+
+  /**
+   * Checks if there is another question after the current one.
    */
   public hasNextQuestion(): boolean {
     return this.currentQuestionIndex < this.questions.length - 1;
   }
 
   /**
-   * Record the user's answer and update the score.
-   * @param answer - The user's answer.
+   * Checks if there is a question before the current one.
    */
-  public answerQuestion(answer: string): void {
-    // Records the user's answer and updates the score if the answer is correct.
-    const currentQuestion = this.getCurrentQuestion();
-    if (currentQuestion && answer === currentQuestion.correctAnswer) {
-      this.score++;
-    }
+  public hasPrevQuestion(): boolean {
+    return this.currentQuestionIndex > 0;
   }
 
   /**
-   * Get the user's score.
-   * @returns The user's score.
+   * Calculates the total score: 1 point per correct answer.
    */
   public getScore(): number {
-    return this.score;
+    return this.userAnswers.reduce((sum, ans, idx) => (
+      sum + (ans === this.questions[idx].correctAnswer ? 1 : 0)
+    ), 0);
   }
 
   /**
-   * Get the total number of questions in the quiz.
-   * @returns The total number of questions.
+   * Returns the total number of questions in the quiz.
    */
   public getTotalQuestions(): number {
     return this.questions.length;
   }
+
+  /**
+   * Get all quiz questions.
+   */
+  public getQuestions(): QuizQuestion[] {
+    return this.questions;
+  }
+
+  /**
+   * Get all answers the user has given (in order), including null for unanswered.
+   */
+  public getUserAnswers(): (string | null)[] {
+    return this.userAnswers;
+  }
+
 }
 
 export default QuizCore;

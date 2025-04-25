@@ -81,9 +81,34 @@ button:hover {
   background-color: #1f77c5;
 }
 
+button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+
 /* Score styles */
 p {
   font-size: 18px;
   font-weight: bold;
   margin: 10px 0;
+}
+
+
+.summary-list {
+  list-style: none;
+  padding: 0;
+  margin-top: 1rem;
+}
+.summary-list li {
+  border-radius: 5px;
+  padding: 10px;
+  margin: 6px 0;
+}
+.summary-list li.correct {
+  background-color: #e0f8e0;
+}
+.summary-list li.incorrect {
+  background-color: #f8e0e0;
 }
